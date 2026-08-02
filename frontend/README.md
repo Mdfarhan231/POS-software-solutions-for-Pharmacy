@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# PharmaDesk Frontend
 
-## Getting Started
+Frontend starter for a pharmacy point-of-sale system built with the Next.js App Router.
 
-First, run the development server:
+## Stack
+
+- Next.js 16.2.12
+- React 19.2.4
+- React DOM 19.2.4
+- Tailwind CSS 4
+- Lucide React
+- Recharts
+- JavaScript and JSX only
+
+The Laravel API client remains in `src/lib/api.js` as requested.
+
+## Local setup
+
+Use Node.js 20.9 or newer.
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+On Windows Command Prompt:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bat
+copy .env.example .env.local
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open `http://localhost:3000`.
 
-## Learn More
+### Demo login
 
-To learn more about Next.js, take a look at the following resources:
+- Username: `demo`
+- Password: `pharmadesk123`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The default `.env.example` uses local mock authentication, so Laravel is not required to view the login page and dashboard.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Laravel API mode
 
-## Deploy on Vercel
+Update `.env.local`:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+NEXT_PUBLIC_USE_MOCK_AUTH=false
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The frontend expects login responses to contain a user and either `token` or `access_token`.
+
+## Structure
+
+```text
+src/
+├── app/
+│   ├── dashboard/page.jsx
+│   ├── login/page.jsx
+│   ├── globals.css
+│   ├── layout.jsx
+│   └── page.jsx
+├── components/
+│   ├── auth/LoginPage.jsx
+│   ├── common/ComingSoonView.jsx
+│   ├── dashboard/DashboardView.jsx
+│   ├── layout/
+│   │   ├── Sidebar.jsx
+│   │   └── TopHeaderBar.jsx
+│   ├── modals/CalculatorModal.jsx
+│   └── ui/
+├── data/mockData.js
+├── lib/
+│   ├── api.js
+│   └── auth-storage.js
+└── services/auth.service.js
+```
+
+All React components and App Router pages use `.jsx`. Pure JavaScript modules such as API helpers, services, storage, and data use `.js`; there are no TypeScript files.
+
+## Production
+
+For Vercel, set:
+
+```env
+NEXT_PUBLIC_API_URL=https://your-render-service.onrender.com/api
+NEXT_PUBLIC_USE_MOCK_AUTH=false
+```
+
+Your Laravel backend must allow the deployed Vercel origin through CORS. The API client supports JSON requests, Bearer tokens, credentials/cookies, and Laravel validation error responses.
