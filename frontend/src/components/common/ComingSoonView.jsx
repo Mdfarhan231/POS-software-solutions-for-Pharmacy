@@ -36,8 +36,7 @@ export default function ComingSoonView({ activeTab, onOpenPOS }) {
         </div>
         <h1 className="mt-5 text-2xl font-black text-slate-900">{title}</h1>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-          The navigation and application shell are ready. This module can now be
-          connected to its own page components and Laravel API endpoints.
+          under construction
         </p>
         {activeTab !== "pos" ? (
           <button
