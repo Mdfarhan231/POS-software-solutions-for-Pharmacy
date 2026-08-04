@@ -71,7 +71,7 @@ export default function LoginPage({ onLoginSuccess }) {
   async function handleQuickDemo() {
     const demoCredentials = {
       username: "demo",
-      password: "pharmadesk123",
+      password: "DEMO2431!",
       counter: "Counter 01 - Main Pharmacy",
       rememberMe: true,
     };
