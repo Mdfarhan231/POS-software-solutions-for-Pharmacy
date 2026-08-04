@@ -36,7 +36,7 @@ Open `http://localhost:3000`.
 ### Demo login
 
 - Username: `demo`
-- Password: `pharmDEMO2431!`
+- Password: `pharmadesk123`
 
 The default `.env.example` uses local mock authentication, so Laravel is not required to view the login page and dashboard.
 
