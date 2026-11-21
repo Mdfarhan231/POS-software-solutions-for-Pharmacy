@@ -1,6 +1,6 @@
 # PharmaDesk Frontend
 
-Frontend starter for a pharmacy point-of-sale system built with the Next.js App Router.
+Frontend for the PharmaDesk pharmacy POS, built with the Next.js App Router and connected to the Laravel API.
 
 ## Stack
 
@@ -12,7 +12,8 @@ Frontend starter for a pharmacy point-of-sale system built with the Next.js App 
 - Recharts
 - JavaScript and JSX only
 
-The Laravel API client remains in `src/lib/api.js` as requested.
+The Laravel API client is centralized in `src/lib/api.js`; supplier, purchase,
+and inventory calls live in `src/services/pos.service.js`.
 
 ## Local setup
 
@@ -33,23 +34,16 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-### Demo login
-
-- Username: `demo`
-- Password: `pharmadesk123`
-
-The default `.env.example` uses local mock authentication, so Laravel is not required to view the login page and dashboard.
-
-## Laravel API mode
-
-Update `.env.local`:
+The default `.env.example` is configured for the Laravel API:
 
 ```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
 NEXT_PUBLIC_USE_MOCK_AUTH=false
 ```
 
-The frontend expects login responses to contain a user and either `token` or `access_token`.
+Start the backend before signing in. Purchase, supplier, and inventory records
+are read from and written to PostgreSQL through the API. Product images are
+uploaded with the purchase and served from Laravel's public storage disk.
 
 ## Structure
 
@@ -73,8 +67,11 @@ src/
 ├── data/mockData.js
 ├── lib/
 │   ├── api.js
-│   └── auth-storage.js
-└── services/auth.service.js
+│   ├── auth-storage.js
+│   └── pos-utils.js
+└── services/
+    ├── auth.service.js
+    └── pos.service.js
 ```
 
 All React components and App Router pages use `.jsx`. Pure JavaScript modules such as API helpers, services, storage, and data use `.js`; there are no TypeScript files.

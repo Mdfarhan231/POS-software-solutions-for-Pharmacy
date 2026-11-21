@@ -2,108 +2,31 @@
 
 import { useState } from "react";
 import {
-  ArrowRightLeft,
-  BarChart3,
   ChevronDown,
   ChevronRight,
-  Contact,
-  DollarSign,
   Home,
-  Landmark,
-  Package,
-  Settings,
-  ShoppingBag,
-  ShoppingCart,
-  SlidersHorizontal,
-  Users,
 } from "lucide-react";
-
-const MENU_ITEMS = [
-  {
-    id: "user_mgmt",
-    label: "User Management",
-    icon: Users,
-    children: [
-      { label: "Users List", tab: "users" },
-      { label: "Roles & Permissions", tab: "roles" },
-      { label: "Sales Commission Agents", tab: "agents" },
-    ],
-  },
-  {
-    id: "contacts",
-    label: "Contacts",
-    icon: Contact,
-    defaultTab: "customers",
-    activeTabs: ["suppliers", "customers", "customer-groups"],
-    children: [
-      { label: "Suppliers", tab: "suppliers" },
-      { label: "Customers", tab: "customers" },
-      { label: "Customer Groups", tab: "customer-groups" },
-    ],
-  },
-  {
-    id: "products",
-    label: "Products",
-    icon: Package,
-    defaultTab: "inventory",
-    activeTabs: ["inventory", "add-product", "print-labels", "variations"],
-    children: [
-      { label: "List Products", tab: "inventory" },
-      { label: "Add Product", tab: "add-product" },
-      { label: "Print Labels", tab: "print-labels" },
-      { label: "Variations", tab: "variations" },
-    ],
-  },
-  {
-    id: "purchases",
-    label: "Purchases",
-    icon: ShoppingBag,
-    defaultTab: "purchases",
-    activeTabs: ["purchases", "add-purchase", "purchase-return"],
-    children: [
-      { label: "List Purchases", tab: "purchases" },
-      { label: "Add Purchase", tab: "add-purchase" },
-      { label: "Purchase Return", tab: "purchase-return" },
-    ],
-  },
-  {
-    id: "sell",
-    label: "Sell",
-    icon: ShoppingCart,
-    defaultTab: "pos",
-    activeTabs: ["pos", "sales", "drafts"],
-    children: [
-      { label: "+ POS Screen", tab: "pos", highlight: true },
-      { label: "All Sales", tab: "sales" },
-      { label: "Drafts & Quotations", tab: "drafts" },
-    ],
-  },
-];
-
-const SIMPLE_ITEMS = [
-  { label: "Stock Transfers", tab: "stock-transfers", icon: ArrowRightLeft },
-  { label: "Stock Adjustment", tab: "stock-adjustment", icon: SlidersHorizontal },
-  { label: "Expenses", tab: "expenses", icon: DollarSign },
-  { label: "Payment Accounts", tab: "payment-accounts", icon: Landmark },
-  { label: "Reports & Analytics", tab: "reports", icon: BarChart3, accent: true },
-  { label: "Settings", tab: "settings", icon: Settings },
-];
+import {
+  SIDEBAR_MENU_ITEMS,
+  SIDEBAR_SIMPLE_ITEMS,
+} from "@/components/layout/navigation";
 
 export default function Sidebar({ activeTab, setActiveTab, isOpen }) {
-  const [openSubmenu, setOpenSubmenu] = useState("sell");
+  const [openSubmenu, setOpenSubmenu] = useState("purchases");
 
   if (!isOpen) return null;
 
-  function toggleSubmenu(menuId) {
-    setOpenSubmenu((current) => (current === menuId ? null : menuId));
-  }
-
   function navigate(tab) {
     setActiveTab(tab);
+
+    const activeMenu = SIDEBAR_MENU_ITEMS.find((item) =>
+      item.activeTabs?.includes(tab)
+    );
+    if (activeMenu) setOpenSubmenu(activeMenu.id);
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 top-[52px] z-40 flex w-64 shrink-0 select-none flex-col justify-between border-r border-slate-800 bg-[#1e2238] text-slate-300 shadow-2xl lg:static lg:top-auto lg:z-auto lg:h-full lg:shadow-none">
+    <aside className="fixed bottom-0 left-0 top-[52px] z-40 flex w-64 shrink-0 select-none flex-col justify-between border-r border-slate-800 bg-[#1e2238] text-slate-300 shadow-2xl lg:static lg:z-auto lg:h-auto lg:shadow-none">
       <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2 py-3 text-xs font-semibold">
         <button
           type="button"
@@ -118,7 +41,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen }) {
           <span>Home</span>
         </button>
 
-        {MENU_ITEMS.map((item) => {
+        {SIDEBAR_MENU_ITEMS.map((item) => {
           const Icon = item.icon;
           const isExpanded = openSubmenu === item.id;
           const isActive = item.activeTabs?.includes(activeTab);
@@ -128,8 +51,10 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen }) {
               <button
                 type="button"
                 onClick={() => {
-                  toggleSubmenu(item.id);
-                  if (item.defaultTab) navigate(item.defaultTab);
+                  setOpenSubmenu((current) =>
+                    current === item.id ? null : item.id
+                  );
+                  if (item.defaultTab) setActiveTab(item.defaultTab);
                 }}
                 className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 transition ${
                   isActive
@@ -172,7 +97,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen }) {
           );
         })}
 
-        {SIMPLE_ITEMS.map((item) => {
+        {SIDEBAR_SIMPLE_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.tab;
 

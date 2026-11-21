@@ -30,13 +30,13 @@ import {
   SALES_LAST_30_DAYS,
   STOCK_ALERT_ITEMS,
   TOP_MEDICINES_THIS_MONTH,
-  TOP_PURCHASE_COMPANIES,
 } from "@/data/mockData";
+import { formatCurrency } from "@/lib/pos-utils";
 
 const METRICS = [
   {
     title: "Total Sales",
-    amount: "৳ 153,420.00",
+    amount: formatCurrency(0),
     helper: "+12.4% vs last month",
     helperClass: "text-emerald-600",
     icon: ShoppingCart,
@@ -45,7 +45,7 @@ const METRICS = [
   },
   {
     title: "Net Profit",
-    amount: "৳ 128,950.00",
+    amount: formatCurrency(0),
     helper: "Net profit after expenses",
     icon: Wallet,
     iconClass: "border-purple-100 bg-purple-50 text-purple-600",
@@ -53,7 +53,7 @@ const METRICS = [
   },
   {
     title: "Invoice Due",
-    amount: "৳ 12,450.00",
+    amount: formatCurrency(0),
     amountClass: "text-[#6b1224]",
     helper: "3 pending customer balances",
     helperClass: "text-amber-600",
@@ -62,21 +62,21 @@ const METRICS = [
   },
   {
     title: "Total Sell Return",
-    amount: "৳ 1,200.00",
-    helper: "Paid: ৳ 1,200.00",
+    amount: formatCurrency(0),
+    helper: `Paid: ${formatCurrency(0)}`,
     icon: Truck,
     iconClass: "border-amber-100 bg-amber-50 text-amber-600",
   },
   {
     title: "Total Purchase",
-    amount: "৳ 84,200.00",
+    amount: formatCurrency(0),
     helper: "Stock inventory additions",
     icon: ShoppingCart,
     iconClass: "border-cyan-100 bg-cyan-50 text-cyan-600",
   },
   {
     title: "Purchase Due",
-    amount: "৳ 8,400.00",
+    amount: formatCurrency(0),
     helper: "2 supplier payables due",
     helperClass: "text-rose-600",
     icon: ShoppingBag,
@@ -84,14 +84,14 @@ const METRICS = [
   },
   {
     title: "Total Purchase Return",
-    amount: "৳ 650.00",
+    amount: formatCurrency(0),
     helper: "Return paid: ৳ 650.00",
     icon: RefreshCw,
     iconClass: "border-emerald-100 bg-emerald-50 text-emerald-600",
   },
   {
     title: "Expense",
-    amount: "৳ 6,800.00",
+    amount: formatCurrency(0),
     helper: "Utilities & store operation",
     icon: TrendingUp,
     iconClass: "border-amber-100 bg-amber-50 text-amber-600",
@@ -171,7 +171,67 @@ function ExportToolbar() {
   );
 }
 
-export default function DashboardView({ onNavigatePOS }) {
+export default function DashboardView({ onNavigatePOS, onNavigatePurchases, purchases = [] }) {
+  const totalPurchaseValue = purchases.reduce(
+    (sum, purchase) => sum + Number(purchase.totalAmount || 0),
+    0
+  );
+  const totalPurchaseDue = purchases.reduce(
+    (sum, purchase) => sum + Number(purchase.dueAmount || 0),
+    0
+  );
+  const duePurchaseCount = purchases.filter(
+    (purchase) => Number(purchase.dueAmount || 0) > 0
+  ).length;
+  const dashboardMetrics = METRICS.map((metric) => {
+    if (metric.title === "Total Purchase") {
+      return {
+        ...metric,
+        amount: formatCurrency(0),
+        helper: `${purchases.length} purchase${purchases.length === 1 ? "" : "s"} recorded`,
+        helperClass: "text-slate-500",
+      };
+    }
+    if (metric.title === "Purchase Due") {
+      return {
+        ...metric,
+        amount: formatCurrency(0),
+        helper: `${duePurchaseCount} unpaid supplier invoice${duePurchaseCount === 1 ? "" : "s"}`,
+        helperClass: totalPurchaseDue > 0 ? "text-rose-600" : "text-slate-500",
+      };
+    }
+    if (metric.title === "Total Purchase Return") {
+      return {
+        ...metric,
+        amount: formatCurrency(0),
+        helper: "No purchase returns recorded",
+      };
+    }
+    return metric;
+  });
+
+  const purchaseTotalsBySupplier = purchases.reduce((totals, purchase) => {
+    if (!purchase.supplierName) return totals;
+    totals[purchase.supplierName] =
+      (totals[purchase.supplierName] || 0) + Number(purchase.totalAmount || 0);
+    return totals;
+  }, {});
+  const topPurchaseCompanies = Object.entries(purchaseTotalsBySupplier)
+    .map(([name, amount]) => ({ name, amount }))
+    .sort((first, second) => second.amount - first.amount)
+    .slice(0, 5);
+  const maxSupplierPurchase = Math.max(
+    1,
+    ...topPurchaseCompanies.map((supplier) => supplier.amount)
+  );
+  const purchaseDueRows = purchases
+    .filter((purchase) => Number(purchase.dueAmount || 0) > 0)
+    .map((purchase) => [
+      purchase.supplierName,
+      purchase.invoiceNumber || purchase.reference,
+      formatCurrency(purchase.dueAmount),
+    ]);
+
   return (
     <div className="space-y-6 text-slate-800">
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
@@ -189,7 +249,7 @@ export default function DashboardView({ onNavigatePOS }) {
       </div>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {METRICS.map((metric) => (
+        {dashboardMetrics.map((metric) => (
           <MetricCard key={metric.title} metric={metric} />
         ))}
       </section>
@@ -262,13 +322,18 @@ export default function DashboardView({ onNavigatePOS }) {
 
         <article className="flex flex-col justify-between space-y-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm lg:col-span-4">
           <PanelHeader
-            title="Top 5 Purchase Companies"
-            subtitle="Highest procurement volume by supplier"
+            title="Purchase totals by supplier"
+            subtitle="Recorded purchase value grouped by supplier"
           />
 
           <div className="my-auto space-y-4">
-            {TOP_PURCHASE_COMPANIES.map((company) => {
-              const percentage = Math.min(100, (company.amount / 65000) * 100);
+            {topPurchaseCompanies.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
+                <p className="text-sm font-semibold text-slate-700">No supplier purchases yet</p>
+                <p className="mt-1 text-xs text-slate-500">Recorded purchases will be summarized here.</p>
+              </div>
+            ) : topPurchaseCompanies.map((company) => {
+              const percentage = Math.min(100, (company.amount / maxSupplierPurchase) * 100);
 
               return (
                 <div key={company.name} className="space-y-1">
@@ -292,10 +357,10 @@ export default function DashboardView({ onNavigatePOS }) {
           <div className="pt-2 text-right">
             <button
               type="button"
-              onClick={onNavigatePOS}
+              onClick={onNavigatePurchases}
               className="text-xs font-bold text-[#7a1528] hover:underline"
             >
-              + Create Purchase Order →
+              + Add Purchase →
             </button>
           </div>
         </article>
@@ -407,10 +472,7 @@ export default function DashboardView({ onNavigatePOS }) {
         <PaymentDueTable
           title="Purchase Payment Due"
           columns={["Supplier", "Reference No", "Due Amount", "Action"]}
-          rows={[
-            ["Square Pharmaceuticals Ltd.", "PO-2026-902", "৳ 5,400.00"],
-            ["Beximco Pharma", "PO-2026-881", "৳ 3,000.00"],
-          ]}
+          rows={purchaseDueRows}
           actionLabel="Pay Supplier"
           actionClass="bg-slate-800 hover:bg-slate-900"
         />
@@ -512,7 +574,13 @@ function PaymentDueTable({ title, columns, rows, actionLabel, actionClass }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-600">
-            {rows.map((row) => (
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="p-6 text-center text-slate-400">
+                  No supplier balances due.
+                </td>
+              </tr>
+            ) : rows.map((row) => (
               <tr key={row[1]}>
                 <td className="whitespace-nowrap p-3 font-semibold text-slate-800">{row[0]}</td>
                 <td className="whitespace-nowrap p-3 font-mono text-slate-500">{row[1]}</td>

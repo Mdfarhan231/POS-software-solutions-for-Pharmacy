@@ -37,10 +37,16 @@ This file is the source of truth for the frontend structure. Every AI agent work
 ## Components
 
 - `src/components/auth/LoginPage.jsx` — Complete login interface and password-reset dialog.
-- `src/components/common/ComingSoonView.jsx` — Placeholder view for unfinished POS modules.
-- `src/components/dashboard/DashboardView.jsx` — Dashboard metrics, charts, tables, and alerts.
+- `src/components/common/ComingSoonView.jsx` — Placeholder view for modules not yet implemented.
+- `src/components/dashboard/DashboardView.jsx` — Dashboard metrics, charts, tables, and purchase summaries.
+- `src/components/inventory/InventoryView.jsx` — Batch inventory received through purchases, including product thumbnails.
 - `src/components/layout/Sidebar.jsx` — Main dashboard navigation sidebar.
-- `src/components/layout/TopHeaderBar.jsx` — Dashboard header actions, language selector, and calculator trigger.
+- `src/components/layout/TopHeaderBar.jsx` — Dashboard top navigation, header actions, language selector, and calculator trigger.
+- `src/components/layout/navigation.js` — Shared sidebar menu and tab definitions.
+- `src/components/purchases/AddPurchaseView.jsx` — Supplier invoice form that records medicine batches, product images, and payment amounts.
+- `src/components/purchases/PurchasesView.jsx` — Purchase history, supplier links, totals, and due balances.
+- `src/components/suppliers/SupplierTable.jsx` — Searchable supplier ledger and purchase selection actions.
+- `src/components/suppliers/SuppliersView.jsx` — Supplier creation and details dialogs with supplier table.
 - `src/components/modals/CalculatorModal.jsx` — Billing calculator modal.
 - `src/components/ui/FormField.jsx` — Reusable labelled form-field wrapper.
 - `src/components/ui/InputIcon.jsx` — Reusable leading input icon wrapper.
@@ -48,6 +54,8 @@ This file is the source of truth for the frontend structure. Every AI agent work
 ## Data, API, and services
 
 - `src/data/mockData.js` — Temporary dashboard demonstration data.
+- `src/lib/pos-utils.js` — Shared POS state defaults, currency formatting, and client-side identifiers.
+- `src/services/pos.service.js` — Authenticated API calls for suppliers, purchases, and inventory.
 - `src/lib/api.js` — Central HTTP client for the Laravel backend.
 - `src/lib/auth-storage.js` — Browser token and authenticated-user storage.
 - `src/services/auth.service.js` — Login, logout, and password-reset operations.

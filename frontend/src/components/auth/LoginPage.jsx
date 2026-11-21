@@ -26,8 +26,8 @@ const LOGO_PATH = "/images/pharmadesk_logo_1785561988066.jpg";
 const USE_MOCK_AUTH = process.env.NEXT_PUBLIC_USE_MOCK_AUTH !== "false";
 
 export default function LoginPage({ onLoginSuccess }) {
-  const [username, setUsername] = useState("demo");
-  const [password, setPassword] = useState("pharmadesk123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [counter, setCounter] = useState("Counter 01 - Main Pharmacy");
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -52,29 +52,46 @@ export default function LoginPage({ onLoginSuccess }) {
     }
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+async function handleSubmit(event) {
+  event.preventDefault();
 
-    if (!username.trim() || !password.trim()) {
-      setErrorMessage("Please enter both username and password.");
-      return;
-    }
+  const email = username.trim();
 
-    await performLogin({
-      username: username.trim(),
-      password,
-      counter,
-      rememberMe,
-    });
+  const emailRegex =
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  if (!email) {
+    setErrorMessage("Email address is required.");
+    return;
   }
+
+  if (!emailRegex.test(email)) {
+    setErrorMessage(
+      "Please enter a valid email address."
+    );
+    return;
+  }
+
+  if (!password.trim()) {
+    setErrorMessage("Password is required.");
+    return;
+  }
+
+  await performLogin({
+    username: email,
+    password,
+    counter,
+    rememberMe,
+  });
+}
 
   async function handleQuickDemo() {
     const demoCredentials = {
-      username: "demo",
-      password: "pharmadesk123",
-      counter: "Counter 01 - Main Pharmacy",
-      rememberMe: true,
-    };
+  username: "admin@gmail.com",
+  password: "admin123",
+  counter: "Counter 01 - Main Pharmacy",
+  rememberMe: true,
+};
 
     setUsername(demoCredentials.username);
     setPassword(demoCredentials.password);
@@ -247,7 +264,7 @@ export default function LoginPage({ onLoginSuccess }) {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <FormField label="User ID / Email" htmlFor="username">
+              <FormField label="Email Address" htmlFor="username">
                 <div className="relative">
                   <InputIcon>
                     <UserIcon className="h-4 w-4" />
@@ -258,7 +275,7 @@ export default function LoginPage({ onLoginSuccess }) {
                     autoComplete="username"
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
-                    placeholder="Enter demo or username"
+                    placeholder="Enter your email address"
                     disabled={isLoading}
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm transition focus:border-transparent focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7a1528] disabled:cursor-not-allowed disabled:opacity-70"
                     required
@@ -381,12 +398,12 @@ export default function LoginPage({ onLoginSuccess }) {
 
             <div className="mt-6 rounded-xl border border-slate-200/80 bg-slate-50 p-3 text-center">
               <p className="text-[11px] font-medium text-slate-500">
-                Demo Username:{" "}
-                <span className="font-bold text-slate-800">demo</span>
+                  Mail:{" "}
+                  <span className="font-bold text-slate-800">admin@gmail.com</span>
                 {"  |  "}
                 Password:{" "}
                 <span className="font-bold text-slate-800">
-                  pharmadesk123
+                    admin123
                 </span>
               </p>
             </div>

@@ -9,14 +9,6 @@ export const SALES_LAST_30_DAYS = Array.from({ length: 30 }, (_, index) => {
   };
 });
 
-export const TOP_PURCHASE_COMPANIES = [
-  { name: "Square Pharmaceuticals Ltd.", amount: 64200 },
-  { name: "Beximco Pharma", amount: 57800 },
-  { name: "Incepta Pharmaceuticals", amount: 49150 },
-  { name: "Renata Limited", amount: 42300 },
-  { name: "Healthcare Pharmaceuticals", amount: 36750 },
-];
-
 export const TOP_MEDICINES_THIS_MONTH = [
   { name: "Napa 500 mg", value: 28, color: "#0284c7" },
   { name: "Seclo 20 mg", value: 23, color: "#7c3aed" },

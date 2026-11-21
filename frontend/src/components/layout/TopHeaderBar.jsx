@@ -21,6 +21,9 @@ export default function TopHeaderBar({
   onToggleSidebar,
   onOpenPOS,
   onLogout,
+  tabs = [],
+  activeTab,
+  onNavigate,
 }) {
   const [showCalculator, setShowCalculator] = useState(false);
   const [language, setLanguage] = useState("bn");
@@ -71,6 +74,30 @@ export default function TopHeaderBar({
               </button>
             </div>
           </div>
+
+          {tabs.length > 0 ? (
+            <nav
+              aria-label="Top navigation"
+              className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {tabs.map(({ tab, label, icon: Icon }) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => onNavigate?.(tab)}
+                  aria-current={activeTab === tab ? "page" : undefined}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${
+                    activeTab === tab
+                      ? "bg-white text-[#6b1224]"
+                      : "text-rose-100 hover:bg-[#540c1b] hover:text-white"
+                  }`}
+                >
+                  {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
+                  <span>{label}</span>
+                </button>
+              ))}
+            </nav>
+          ) : null}
 
           <div className="flex min-w-0 items-center gap-2 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
